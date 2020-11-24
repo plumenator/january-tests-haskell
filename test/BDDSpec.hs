@@ -51,8 +51,12 @@ testSimplify = do
 testRestrict :: Spec
 testRestrict = do
   describe "restrict" $ do
-    it "testRestrict" $
-      pending
+    it "b7 2 True" $
+      restrict b7 2 True `shouldBe` Or (Not (IdRef 3)) (Or (Prim True) (Not (IdRef 9)))
+    it "and then, 9 False" $
+      restrict (restrict b7 2 True) 9 False `shouldBe` Or (Not (IdRef 3)) (Prim True)
+    it "and then, 3 True" $
+      restrict (restrict (restrict b7 2 True) 9 False) 3 True `shouldBe` Prim True
 
 testBuildBDD :: Spec
 testBuildBDD = do

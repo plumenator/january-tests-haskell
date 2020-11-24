@@ -53,8 +53,15 @@ simplify (Or (Prim b) (Prim b2))
 simplify bexp = bexp
 
 restrict :: BExp -> Index -> Bool -> BExp
-restrict 
-  = undefined
+restrict bexp index b
+  = restrict' bexp where
+  restrict' (IdRef i)
+    | i == index = Prim b
+    | otherwise  = IdRef i
+  restrict' (Not bexp) = simplify (Not (restrict' bexp))
+  restrict' (And bexp bexp2) = simplify (And (restrict' bexp) (restrict' bexp2))
+  restrict' (Or bexp bexp2) = simplify (Or (restrict' bexp) (restrict' bexp2))
+  restrict' bexp = bexp
 
 ------------------------------------------------------
 -- PART III

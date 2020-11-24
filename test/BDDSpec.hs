@@ -1,5 +1,6 @@
 module BDDSpec where
 
+import Data.Map
 import Test.Hspec
 
 import BDD
@@ -61,8 +62,22 @@ testRestrict = do
 testBuildBDD :: Spec
 testBuildBDD = do
   describe "buildBDD" $ do
-    it "testBuildBDD" $
-      pending
+    it "b1" $
+      fmap fromList (buildBDD b1 []) `shouldBe` fmap fromList bdd1
+    it "b2" $
+      fmap fromList (buildBDD b2 [1, 2]) `shouldBe` fmap fromList bdd2
+    it "b3" $
+      fmap fromList (buildBDD b3 [1]) `shouldBe` fmap fromList bdd3'
+    it "b4" $
+      fmap fromList (buildBDD b4 [2, 3, 7]) `shouldBe` fmap fromList bdd4
+    it "b5" $
+      fmap fromList (buildBDD b5 [2, 3, 7]) `shouldBe` fmap fromList bdd5'
+    it "b6" $
+      fmap fromList (buildBDD b6 [1, 2, 3, 4]) `shouldBe` fmap fromList bdd6
+    it "b7" $
+      fmap fromList (buildBDD b7 [2, 3, 9]) `shouldBe` fmap fromList bdd7'
+    it "b8" $
+      fmap fromList (buildBDD b8 [1]) `shouldBe` fmap fromList bdd8
 
 testBuildROBOD :: Spec
 testBuildROBOD = do
@@ -86,15 +101,20 @@ bdd1, bdd2, bdd3, bdd4, bdd5, bdd6, bdd7, bdd8 :: BDD
 bdd1 = (0,[])
 bdd2 = (2,[(4,(2,1,1)),(5,(2,1,0)),(2,(1,4,5))])
 bdd3 = (5,[(5,(1,0,1))])
+bdd3' = (2,[(2,(1,0,1))])
 bdd4 = (2,[(2,(2,4,5)),(4,(3,8,9)),(8,(7,0,1)),(9,(7,0,0)),
            (5,(3,10,11)),(10,(7,0,1)),(11,(7,0,1))])
 bdd5 = (3,[(4,(3,8,9)),(3,(2,4,5)),(8,(7,1,0)),(9,(7,1,1)),
+           (5,(3,10,11)),(10,(7,1,0)),(11,(7,1,0))])
+bdd5' = (2,[(4,(3,8,9)),(2,(2,4,5)),(8,(7,1,0)),(9,(7,1,1)),
            (5,(3,10,11)),(10,(7,1,0)),(11,(7,1,0))])
 bdd6 = (2,[(2,(1,4,5)),(4,(2,8,9)),(8,(3,16,17)),(16,(4,0,0)),
            (17,(4,0,1)),(9,(3,18,19)),(18,(4,0,0)),(19,(4,0,1)),
            (5,(2,10,11)),(10,(3,20,21)),(20,(4,0,0)),(21,(4,0,1)),
            (11,(3,22,23)),(22,(4,1,1)),(23,(4,1,1))])
 bdd7 = (6,[(6,(2,4,5)),(4,(3,8,9)),(8,(9,1,1)),(9,(9,1,0)),
+           (5,(3,10,11)),(10,(9,1,1)),(11,(9,1,1))])
+bdd7' = (2,[(2,(2,4,5)),(4,(3,8,9)),(8,(9,1,1)),(9,(9,1,0)),
            (5,(3,10,11)),(10,(9,1,1)),(11,(9,1,1))])
 bdd8 = (2,[(2,(1,1,1))])
 

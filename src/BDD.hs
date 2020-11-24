@@ -71,14 +71,26 @@ restrict bexp index b
 -- The question suggests the following definition (in terms of buildBDD')
 -- but you are free to implement the function differently if you wish.
 buildBDD :: BExp -> [Index] -> BDD
-buildBDD 
-  = undefined
+buildBDD (Prim b) _
+  = (if b then 1 else 0, [])
+buildBDD bexp indexes
+  = buildBDD' bexp 2 indexes
 
 -- Potential helper function for buildBDD which you are free
 -- to define/modify/ignore/delete/embed as you see fit.
 buildBDD' :: BExp -> NodeId -> [Index] -> BDD
-buildBDD' 
-  = undefined
+buildBDD' bexp root indexes
+  = (root, buildBDD'' bexp root indexes) where
+  buildBDD'' _ _ []            = []
+  buildBDD'' bexp nodeid (index : indexes) = (nodeid, (index, left, right))
+                                             : (buildBDD'' lexp left indexes
+                                                 ++ buildBDD'' rexp right indexes) where
+    left  = choose lexp (2 * nodeid)
+    right = choose rexp (2 * nodeid + 1)
+    lexp  = restrict bexp index False
+    rexp  = restrict bexp index True
+    choose (Prim b) _ = if b then 1 else 0
+    choose _ n = n
 
 ------------------------------------------------------
 -- PART IV

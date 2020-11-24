@@ -47,3 +47,4 @@ tests:
     dependencies:
     - january-tests-haskell
     - hspec
+    - containers

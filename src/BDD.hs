@@ -44,8 +44,13 @@ sat (root, nodes)
 -- PART II
 
 simplify :: BExp -> BExp
-simplify 
-  = undefined
+simplify (Not (Prim b))
+  = Prim (not b)
+simplify (And (Prim b) (Prim b2))
+  = Prim (b && b2)
+simplify (Or (Prim b) (Prim b2))
+  = Prim (b || b2)
+simplify bexp = bexp
 
 restrict :: BExp -> Index -> Bool -> BExp
 restrict 

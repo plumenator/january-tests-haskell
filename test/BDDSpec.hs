@@ -41,8 +41,12 @@ testSat = do
 testSimplify :: Spec
 testSimplify = do
   describe "simplify" $ do
-    it "testSimplify" $
-      pending
+    it "returns Prim True" $
+      simplify (Not (Prim False)) `shouldBe` Prim True
+    it "returns Prim False" $
+      simplify (Or (Prim False) (Prim False)) `shouldBe` Prim False
+    it "returns the input as is" $
+      simplify (And (IdRef 3) (Prim True)) `shouldBe` And (IdRef 3) (Prim True)
 
 testRestrict :: Spec
 testRestrict = do

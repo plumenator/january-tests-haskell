@@ -31,8 +31,12 @@ testCheckSat = do
 testSat :: Spec
 testSat = do
   describe "sat" $ do
-    it "testSat" $
-      pending
+    it "bdd1" $
+      sat bdd1 `shouldBe` []
+    it "bdd2" $
+      sat bdd2 `shouldBe` [[(1, False), (2, False)], [(1, False), (2, True)], [(1, True), (2, False)]]
+    it "bdd8" $
+      sat bdd8 `shouldBe` [[(1, False)], [(1, True)]]
 
 testSimplify :: Spec
 testSimplify = do

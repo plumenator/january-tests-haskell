@@ -33,8 +33,12 @@ checkSat (root, nodes) env
     choose (index, f, t) = if (lookUp index env) then t else f
 
 sat :: BDD -> [[(Index, Bool)]]
-sat 
-  = undefined
+sat (root, nodes)
+  = sat' root where
+  sat' 0 = []
+  sat' 1 = [[]]
+  sat' nodeid = map ((index, False) :) (sat' f) ++ map ((index, True) :) (sat' t) where
+    (index, f, t) = lookUp nodeid nodes
 
 ------------------------------------------------------
 -- PART II

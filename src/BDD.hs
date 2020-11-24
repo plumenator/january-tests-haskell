@@ -24,8 +24,13 @@ lookUp x
   = snd . head . dropWhile (\p -> (fst p) /= x)
 
 checkSat :: BDD -> Env -> Bool
-checkSat 
-  = undefined
+checkSat (root, nodes) env
+  = check root where
+  check 0 = False
+  check 1 = True
+  check nodeid = check (choose node) where
+    node = lookUp nodeid nodes
+    choose (index, f, t) = if (lookUp index env) then t else f
 
 sat :: BDD -> [[(Index, Bool)]]
 sat 

@@ -23,8 +23,10 @@ testLookUp = do
 testCheckSat :: Spec
 testCheckSat = do
   describe "checkSat" $ do
-    it "testCheckSat" $
-      pending
+    it "bdd2" $
+      checkSat bdd2 [(1, True), (2, False)] `shouldBe` True
+    it "bdd7" $
+      checkSat bdd7 [(3, True), (2, False), (9, True)] `shouldBe` False
 
 testSat :: Spec
 testSat = do

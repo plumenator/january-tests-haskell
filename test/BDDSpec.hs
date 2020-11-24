@@ -17,8 +17,8 @@ spec = do
 testLookUp :: Spec
 testLookUp = do
   describe "lookUp" $ do
-    it "testLookUp" $
-      pending
+    it "returns the value when the key is given" $
+      lookUp "two" [("one", 1), ("two", 2)] `shouldBe` 2
 
 testCheckSat :: Spec
 testCheckSat = do

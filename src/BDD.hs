@@ -20,8 +20,8 @@ type BDD = (NodeId, [BDDNode])
 
 -- Pre: The item is in the given table
 lookUp :: Eq a => a -> [(a, b)] -> b
-lookUp 
-  = undefined
+lookUp x
+  = snd . head . dropWhile (\p -> (fst p) /= x)
 
 checkSat :: BDD -> Env -> Bool
 checkSat 

@@ -13,7 +13,8 @@ spec = do
   testSimplify
   testRestrict
   testBuildBDD
-  testBuildROBOD
+  testApplyEliminate
+  testBuildROBDD
 
 testLookUp :: Spec
 testLookUp = do
@@ -79,11 +80,28 @@ testBuildBDD = do
     it "b8" $
       fmap fromList (buildBDD b8 [1]) `shouldBe` fmap fromList bdd8
 
-testBuildROBOD :: Spec
-testBuildROBOD = do
-  describe "buildROBOD" $ do
-    it "testBuildROBOD" $
-      pending
+testApplyEliminate :: Spec
+testApplyEliminate = do
+  describe "testApplyEliminate" $ do
+    it "applyEliminate first order" $
+      fmap fromList (applyEliminate (2, [(2, (1, 1, 5)), (5, (2, 0, 0))]))
+      `shouldBe` fmap fromList (2, [(2, (1, 1, 0))])
+    it "applyEliminate second order" $
+      fmap fromList (applyEliminate (2, [(2, (1, 1, 5)), (5, (2, 10, 11)), (10, (3, 0, 0)), (11, (3, 0, 0))]))
+      `shouldBe` fmap fromList (2, [(2, (1, 1, 0))])
+    it "applyEliminate disjunction of conjunctions" $
+      fmap fromList (applyEliminate (2, [(2, (1, 4, 5)), (4, (2, 8, 9)), (8, (3, 16, 17)), (16, (4, 0, 0)), (17, (4, 0, 1)), (9, (3, 18, 19)), (18, (4, 0, 0)), (19, (4, 0, 1)), (5, (2, 10, 11)), (10, (3, 20, 21)), (20, (4, 0, 0)), (21, (4, 0, 1)), (11, (3, 22, 23)), (22, (4, 1, 1)), (23, (4, 1, 1))]))
+      `shouldBe` fmap fromList (2, [(2, (1, 4, 5)), (4, (2, 8, 9)), (8, (3, 0, 17)), (17, (4, 0, 1)), (9, (3, 0, 19)), (19, (4, 0, 1)), (5, (2, 10, 1)), (10, (3, 0, 21)), (21, (4, 0, 1))])
+
+testBuildROBDD :: Spec
+testBuildROBDD = do
+  describe "buildROBDD" $ do
+    it "b9" $
+      fmap fromList (buildROBDD b9 [1, 2]) `shouldBe` fmap fromList bdd9
+    it "b6 1 3 2 4" $
+      fmap fromList (buildROBDD b6 [1, 3, 2, 4]) `shouldBe` fmap fromList bdd61324
+    it "b6 1 2 3 4" $
+      fmap fromList (buildROBDD b6 [1, 2, 3, 4]) `shouldBe` fmap fromList bdd61234
 
 
   
@@ -96,6 +114,7 @@ b5 = Not (And (IdRef 7) (Or (IdRef 2) (Not (IdRef 3))))
 b6 = Or (And (IdRef 1) (IdRef 2)) (And (IdRef 3) (IdRef 4))
 b7 = Or (Not (IdRef 3)) (Or (IdRef 2) (Not (IdRef 9)))
 b8 = Or (IdRef 1) (Not (IdRef 1))
+b9 = Or (And (Not (IdRef 1)) (Prim True)) (And (IdRef 1) (Or (And (IdRef 2) (Prim False)) (And (Not (IdRef 2)) (Prim False))))
 
 bdd1, bdd2, bdd3, bdd4, bdd5, bdd6, bdd7, bdd8 :: BDD
 bdd1 = (0,[])
@@ -112,10 +131,11 @@ bdd6 = (2,[(2,(1,4,5)),(4,(2,8,9)),(8,(3,16,17)),(16,(4,0,0)),
            (17,(4,0,1)),(9,(3,18,19)),(18,(4,0,0)),(19,(4,0,1)),
            (5,(2,10,11)),(10,(3,20,21)),(20,(4,0,0)),(21,(4,0,1)),
            (11,(3,22,23)),(22,(4,1,1)),(23,(4,1,1))])
+bdd61324 = (2, [(2, (1, 4, 5)), (4, (3, 0, 9)), (9, (4, 0, 1)), (5, (3, 10, 11)), (10, (2, 0, 1)), (11, (2, 9, 1))])
+bdd61234 = (2, [(2, (1, 4, 5)), (4, (3, 0, 9)), (5, (2, 4, 1)), (9, (4, 0, 1))])
 bdd7 = (6,[(6,(2,4,5)),(4,(3,8,9)),(8,(9,1,1)),(9,(9,1,0)),
            (5,(3,10,11)),(10,(9,1,1)),(11,(9,1,1))])
 bdd7' = (2,[(2,(2,4,5)),(4,(3,8,9)),(8,(9,1,1)),(9,(9,1,0)),
            (5,(3,10,11)),(10,(9,1,1)),(11,(9,1,1))])
 bdd8 = (2,[(2,(1,1,1))])
-
-
+bdd9 = (2, [(2, (1, 1, 0))])

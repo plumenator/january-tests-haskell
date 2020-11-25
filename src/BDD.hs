@@ -98,5 +98,29 @@ buildBDD' bexp root indexes
 -- Pre: Each variable index in the BExp appears exactly once
 --      in the Index list; there are no other elements
 buildROBDD :: BExp -> [Index] -> BDD
-buildROBDD 
-  = undefined
+buildROBDD bexp indexes = applyEliminate (buildBDD bexp indexes)
+
+applyEliminate (root, allNodes) = (root, applyEliminate' allNodes) where
+  applyEliminate' [] = []
+  applyEliminate' ((nodeid, (index, left, right)) : nodes) =
+    let
+      (nodeid', (index', left', right')) = eliminate nodeid allNodes
+    in
+      if nodeid' == 0 || nodeid' == 1 then
+        applyEliminate' nodes
+      else
+        (nodeid', (index', left', right')) : applyEliminate' nodes
+
+eliminate nodeid nodes
+  | nodeid == 0 = (0, (0, 0, 0))
+  | nodeid == 1 = (1, (0, 1, 1))
+  | otherwise =
+    let
+      (leftChild', leftTriple) = eliminate leftChild nodes
+      (rightChild', rightTriple) = eliminate rightChild nodes
+      (index, leftChild, rightChild) = lookUp nodeid nodes
+    in
+      if leftChild' == rightChild' then
+        (leftChild', leftTriple)
+      else
+        (nodeid, (index, leftChild', rightChild'))

@@ -104,16 +104,15 @@ buildROBDD bexp indexes = applyEliminate (buildBDD bexp indexes)
 applyEliminate (root, allNodes) = (root, mapMaybe applyEliminate' allNodes) where
   applyEliminate' (nodeid, (index, left, right)) =
     let
-      (nodeid', (index', left', right')) = eliminate nodeid allNodes
+      (nodeid', node) = eliminate nodeid allNodes
     in
-      if nodeid' == 0 || nodeid' == 1 then
-        Nothing
-      else
-        Just (nodeid', (index', left', right'))
+      do
+        node <- node
+        return (nodeid', node)
 
 eliminate nodeid nodes
-  | nodeid == 0 = (0, (0, 0, 0))
-  | nodeid == 1 = (1, (0, 1, 1))
+  | nodeid == 0 = (0, Nothing)
+  | nodeid == 1 = (1, Nothing)
   | otherwise =
     let
       (leftChild', leftTriple) = eliminate leftChild nodes
@@ -123,4 +122,4 @@ eliminate nodeid nodes
       if leftChild' == rightChild' then
         (leftChild', leftTriple)
       else
-        (nodeid, (index, leftChild', rightChild'))
+        (nodeid, Just (index, leftChild', rightChild'))

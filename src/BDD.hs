@@ -1,6 +1,7 @@
 module BDD where
 
 import Data.List
+import Data.Maybe
 
 type Index = Int
 
@@ -100,16 +101,15 @@ buildBDD' bexp root indexes
 buildROBDD :: BExp -> [Index] -> BDD
 buildROBDD bexp indexes = applyEliminate (buildBDD bexp indexes)
 
-applyEliminate (root, allNodes) = (root, applyEliminate' allNodes) where
-  applyEliminate' [] = []
-  applyEliminate' ((nodeid, (index, left, right)) : nodes) =
+applyEliminate (root, allNodes) = (root, mapMaybe applyEliminate' allNodes) where
+  applyEliminate' (nodeid, (index, left, right)) =
     let
       (nodeid', (index', left', right')) = eliminate nodeid allNodes
     in
       if nodeid' == 0 || nodeid' == 1 then
-        applyEliminate' nodes
+        Nothing
       else
-        (nodeid', (index', left', right')) : applyEliminate' nodes
+        Just (nodeid', (index', left', right'))
 
 eliminate nodeid nodes
   | nodeid == 0 = (0, (0, 0, 0))

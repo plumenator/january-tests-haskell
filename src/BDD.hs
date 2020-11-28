@@ -101,14 +101,17 @@ buildBDD' bexp root indexes
 buildROBDD :: BExp -> [Index] -> BDD
 buildROBDD bexp indexes = applyEliminate (buildBDD bexp indexes)
 
-applyEliminate (root, allNodes) = (root, mapMaybe applyEliminate' allNodes) where
-  applyEliminate' (nodeid, (index, left, right)) =
+applyEliminate (root, allNodes) = (root, applyEliminate' root) where
+  applyEliminate' 0 = []
+  applyEliminate' 1 = []
+  applyEliminate' nodeid =
     let
       (nodeid', node) = eliminate nodeid allNodes
+      (index, left, right) = fromMaybe (lookUp nodeid allNodes) node
+      leftNodes = applyEliminate' left
+      rightNodes = applyEliminate' right
     in
-      do
-        node <- node
-        return (nodeid', node)
+      ((if nodeid /= root then nodeid' else root, (index, left, right)) : (leftNodes ++ rightNodes))
 
 eliminate nodeid nodes
   | nodeid == 0 = (0, Nothing)

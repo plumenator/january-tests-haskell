@@ -1,7 +1,8 @@
 module BDD where
 
 import Data.List
-import Data.Maybe
+import Data.Map as M hiding (map)
+import Data.Maybe as Y
 
 type Index = Int
 
@@ -99,7 +100,7 @@ buildBDD' bexp root indexes
 -- Pre: Each variable index in the BExp appears exactly once
 --      in the Index list; there are no other elements
 buildROBDD :: BExp -> [Index] -> BDD
-buildROBDD bexp indexes = applyEliminate (buildBDD bexp indexes)
+buildROBDD bexp indexes = applyEliminate (applyShare (buildBDD bexp indexes))
 
 applyEliminate (root, allNodes) = (root, applyEliminate' root) where
   applyEliminate' 0 = []
@@ -126,3 +127,50 @@ eliminate nodeid nodes
         (leftChild', leftTriple)
       else
         (nodeid, Just (index, leftChild', rightChild'))
+
+applyShare (root, allNodes) = (root, (fst (applyShare' M.empty root))) where
+  subs = subtrees allNodes
+  applyShare' memo 0 = ([], memo)
+  applyShare' memo 1 = ([], memo)
+  applyShare' memo nodeid =
+    let
+      (index, leftChild, rightChild) = lookUp nodeid allNodes
+      (children, memo') = subtreeMemo memo nodeid allNodes subs
+      (leftChild', rightChild') = fromMaybe (leftChild, rightChild) children
+      (left, memo'') = applyShare' memo' leftChild'
+      (right, memo''') = applyShare' memo'' rightChild'
+    in
+      (((nodeid, (index, leftChild', rightChild')) : (left ++ right)), memo''')
+
+subtreeMemo memo nodeid nodes subs
+  | nodeid == 0 = (Nothing, memo)
+  | nodeid == 1 = (Nothing, memo)
+  | otherwise =
+    let
+      (index, leftChild, rightChild) = lookUp nodeid nodes
+      (leftChild', memo')
+        | leftChild == 0 || leftChild == 1 = (Nothing, memo)
+        | otherwise = M.insertLookupWithKey (\k n o -> o) leftTree leftChild memo where
+          leftTree = lookUp leftChild subs
+      (rightChild', memo'')
+        | rightChild == 0 || rightChild == 1 = (Nothing, memo')
+        | otherwise = M.insertLookupWithKey (\k n o -> o) rightTree rightChild memo' where
+          rightTree = lookUp rightChild subs
+    in
+      (Just (fromMaybe leftChild leftChild', fromMaybe rightChild rightChild'), memo'')
+
+subtrees :: [BDDNode] -> [BDD]
+subtrees nodes = map subtree nodes where
+  subtree (nodeid, (index, left, right)) = (nodeid, subtree' nodeid 2)
+  subtree' 0 _ = []
+  subtree' 1 _ = []
+  subtree' nodeid nodeid' = (nodeid', (index, left', right')) : (subtree' left left' ++ subtree' right right') where
+    left'
+      | left == 0 = left
+      | left == 1 = left
+      | otherwise = 2 * nodeid'
+    right'
+      | right == 0 = right
+      | right == 1 = right
+      | otherwise = 2 * nodeid' + 1
+    (index, left, right) = lookUp nodeid nodes

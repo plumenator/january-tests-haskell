@@ -14,6 +14,7 @@ spec = do
   testRestrict
   testBuildBDD
   testApplyEliminate
+  testApplyShare
   testBuildROBDD
 
 testLookUp :: Spec
@@ -95,6 +96,15 @@ testApplyEliminate = do
     it "lose root" $
       fmap fromList (applyEliminate (2,[(2,(2,4,4)),(4,(1,1,0))])) `shouldBe` fmap fromList (2,[(2, (1, 1, 0))])
 
+testApplyShare :: Spec
+testApplyShare = do
+  describe "testApplyShare" $ do
+    it "applyShare first order" $
+      fmap fromList (applyShare (2, [(2, (1, 4, 5)), (4, (2, 1, 0)), (5, (2, 1, 0))]))
+      `shouldBe` fmap fromList (2, [(2, (1, 4, 4)), (4, (2, 1, 0))])
+    it "applyShare second order" $
+      fmap fromList (applyShare (2, [(2,(1,4,5)),(4,(2,8,9)),(8,(3,0,17)), (17,(4,0,1)),(9,(3,0,19)),(19,(4,0,1)), (5,(2,10,1)),(10,(3,0,21)),(21,(4,0,1)),(22,(4,0,1))]))
+      `shouldBe` fmap fromList (2, [(2, (1, 4, 5)), (4, (2, 8, 8)), (8, (3, 0, 17)), (17, (4, 0, 1)), (5, (2, 8, 1))])
 
 testBuildROBDD :: Spec
 testBuildROBDD = do
